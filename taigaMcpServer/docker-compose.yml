@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  taiga-mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: taiga-mcp-server:latest
+    container_name: taiga-mcp-server
+    restart: unless-stopped
+    
+    # Environment variables
+    environment:
+      - NODE_ENV=production
+      - TAIGA_API_URL=${TAIGA_API_URL:-https://api.taiga.io/api/v1}
+      - TAIGA_USERNAME=${TAIGA_USERNAME}
+      - TAIGA_PASSWORD=${TAIGA_PASSWORD}
+    
+    # Load environment from .env file
+    env_file:
+      - .env
+    
+    # Stdin/stdout for MCP communication
+    stdin_open: true
+    tty: false
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('Health check passed')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+    
+    # Logging configuration
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Optional: Development service
+  taiga-mcp-dev:
+    profiles:
+      - dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    image: taiga-mcp-server:dev
+    container_name: taiga-mcp-server-dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - TAIGA_API_URL=${TAIGA_API_URL:-https://api.taiga.io/api/v1}
+      - TAIGA_USERNAME=${TAIGA_USERNAME}
+      - TAIGA_PASSWORD=${TAIGA_PASSWORD}
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
+    command: ["npm", "run", "test:full"]

@@ -1,0 +1,24 @@
+# Test files
+testClient.js
+testDirectClient.js
+openaiClient.js
+
+# Documentation files
+crearMCP.md
+README.md
+
+# Environment files
+.env
+.env.example
+.env.local
+.env.*.local
+
+# Development files
+.vscode/
+.idea/
+*.log
+.DS_Store
+
+# Git files
+.git/
+.gitignore

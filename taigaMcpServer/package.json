@@ -1,0 +1,62 @@
+{
+  "name": "taiga-mcp-server",
+  "version": "1.9.20",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "taiga-mcp": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node test/unitTest.js && node test/quickTest.js",
+    "test:unit": "node test/unitTest.js",
+    "test:quick": "node test/quickTest.js",
+    "test:basic": "node test/mcpTest.js",
+    "test:integration": "node test/integration.js",
+    "test:pagination": "node test/paginationTest.js",
+    "test:full": "node test/runTests.js"
+  },
+  "keywords": [
+    "mcp",
+    "taiga",
+    "model-context-protocol",
+    "project-management",
+    "sprint",
+    "issues",
+    "agile",
+    "ai-assisted",
+    "claude-code"
+  ],
+  "author": "greddy7574@gmail.com",
+  "license": "ISC",
+  "description": "Full-featured MCP server for Taiga project management with advanced sprint and issue tracking. Based on mcpTAIGA by adriapedralbes, enhanced with substantial modifications. Developed collaboratively with Claude Code (AI-assisted development).",
+  "homepage": "https://github.com/greddy7574/taigaMcpServer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/greddy7574/taigaMcpServer"
+  },
+  "contributors": [
+    {
+      "name": "adriapedralbes",
+      "url": "https://github.com/adriapedralbes",
+      "role": "original inspiration"
+    },
+    {
+      "name": "greddychen",
+      "email": "greddy7574@gmail.com",
+      "role": "human developer"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://claude.ai/code",
+      "role": "AI development assistant"
+    }
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "axios": "^1.8.4",
+    "dotenv": "^16.4.7",
+    "form-data": "^4.0.1",
+    "zod": "^3.24.2"
+  }
+}
