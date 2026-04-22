@@ -20,13 +20,17 @@ const taigaService = new TaigaService();
 async function resolveAssignedNames(story) {
   const ids = story.assigned_users;
   if (!ids || ids.length === 0) return 'Unassigned';
-  if (ids.length === 1) return getSafeValue(story.assigned_to_extra_info?.full_name, `User ${ids[0]}`);
+  if (ids.length === 1) {
+    const info = story.assigned_to_extra_info;
+    return getSafeValue(info?.full_name_display || info?.full_name, `User ${ids[0]}`);
+  }
   try {
     const members = await taigaService.getProjectMembers(story.project);
     const names = ids.map(id => members.find(m => m.user === id)?.full_name || `User ${id}`);
     return names.join(', ');
   } catch {
-    return getSafeValue(story.assigned_to_extra_info?.full_name, 'Unassigned');
+    const info = story.assigned_to_extra_info;
+    return getSafeValue(info?.full_name_display || info?.full_name, 'Unassigned');
   }
 }
 
@@ -325,7 +329,7 @@ User Story Details:
 - Subject: ${updatedStory.subject}
 - Project: ${getSafeValue(updatedStory.project_extra_info?.name)}
 - New Status: ${getSafeValue(updatedStory.status_extra_info?.name)}
-- Assigned to: ${updatedStory.assigned_users_extra_info?.length > 0 ? updatedStory.assigned_users_extra_info.map(u => u.full_name).join(', ') : 'Unassigned'}
+- Assigned to: ${(updatedStory.assigned_to_extra_info?.full_name_display || updatedStory.assigned_to_extra_info?.full_name) ?? 'Unassigned'}
 - Sprint: ${getSafeValue(updatedStory.milestone_extra_info?.name, 'No Sprint')}`;
 
       return createSuccessResponse(successMessage);
