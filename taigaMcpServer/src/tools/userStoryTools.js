@@ -17,6 +17,19 @@ import {
 
 const taigaService = new TaigaService();
 
+async function resolveAssignedNames(story) {
+  const ids = story.assigned_users;
+  if (!ids || ids.length === 0) return 'Unassigned';
+  if (ids.length === 1) return getSafeValue(story.assigned_to_extra_info?.full_name, `User ${ids[0]}`);
+  try {
+    const members = await taigaService.getProjectMembers(story.project);
+    const names = ids.map(id => members.find(m => m.user === id)?.full_name || `User ${id}`);
+    return names.join(', ');
+  } catch {
+    return getSafeValue(story.assigned_to_extra_info?.full_name, 'Unassigned');
+  }
+}
+
 /**
  * Tool to list user stories in a project
  */
@@ -58,6 +71,7 @@ export const getUserStoryTool = {
         projectId = await resolveProjectId(projectIdentifier);
       }
       const userStory = await taigaService.getUserStory(userStoryId, projectId);
+      const assignedNames = await resolveAssignedNames(userStory);
 
       const storyDetails = `User Story Details: #${userStory.ref} - ${userStory.subject}
 
@@ -67,7 +81,7 @@ export const getUserStoryTool = {
 - Epic: ${getSafeValue(userStory.epic_extra_info?.subject, 'No Epic')}
 
 🎯 Assignment:
-- Assigned to: ${getSafeValue(userStory.assigned_to_extra_info?.full_name, 'Unassigned')}
+- Assigned to: ${assignedNames}
 - Sprint: ${getSafeValue(userStory.milestone_extra_info?.name, 'No Sprint')}
 
 📊 Metrics:
@@ -166,13 +180,13 @@ export const updateUserStoryTool = {
 };
 
 /**
- * Tool to assign a user story to a team member (by name/email/id)
+ * Tool to assign a user story to one or more team members (by name/email/id)
  */
 export const assignUserStoryTool = {
   name: 'assignUserStory',
   schema: {
     userStoryId: z.string().describe('User Story internal ID, or ref (#N) when projectIdentifier is provided'),
-    assignee: z.string().describe('Full name, username, email, or user_id (or "unassign" to clear)'),
+    assignee: z.string().describe('Full name, username, email, or user_id. For multiple assignees, separate with commas (e.g. "Neyer, Bill"). Use "unassign" to clear all.'),
     projectIdentifier: z.string().optional().describe('Project ID or slug (required if userStoryId is a ref)'),
   },
   handler: async ({ userStoryId, assignee, projectIdentifier }) => {
@@ -181,27 +195,38 @@ export const assignUserStoryTool = {
       const userStory = await taigaService.getUserStory(userStoryId, projectId);
       if (!projectId) projectId = userStory.project;
 
-      let assignedToId = null;
-      if (assignee.toLowerCase() !== 'unassign' && assignee.toLowerCase() !== 'none') {
+      const assigneeList = assignee.split(',').map(a => a.trim());
+      const isUnassign = assigneeList.length === 1 &&
+        (assigneeList[0].toLowerCase() === 'unassign' || assigneeList[0].toLowerCase() === 'none');
+
+      let assignedUserIds = [];
+      if (!isUnassign) {
         const members = await taigaService.getProjectMembers(projectId);
-        const needle = assignee.toLowerCase();
-        const member = members.find(m =>
-          m.user === parseInt(assignee) ||
-          m.full_name?.toLowerCase() === needle ||
-          m.full_name?.toLowerCase().includes(needle) ||
-          m.user_email?.toLowerCase() === needle ||
-          m.email?.toLowerCase() === needle
-        );
-        if (!member) {
-          const available = members.map(m => `- ${m.full_name} (id:${m.user})`).join('\n');
-          return createErrorResponse(`User "${assignee}" not found. Available:\n${available}`);
+        for (const name of assigneeList) {
+          const needle = name.toLowerCase();
+          const member = members.find(m =>
+            m.user === parseInt(name) ||
+            m.full_name?.toLowerCase() === needle ||
+            m.full_name?.toLowerCase().includes(needle) ||
+            m.user_email?.toLowerCase() === needle ||
+            m.email?.toLowerCase() === needle
+          );
+          if (!member) {
+            const available = members.map(m => `- ${m.full_name} (id:${m.user})`).join('\n');
+            return createErrorResponse(`User "${name}" not found. Available:\n${available}`);
+          }
+          assignedUserIds.push(member.user);
         }
-        assignedToId = member.user;
       }
 
-      const updated = await taigaService.updateUserStory(userStory.id, { assigned_to: assignedToId });
-      const who = assignedToId ? getSafeValue(updated.assigned_to_extra_info?.full_name, 'assigned') : 'Unassigned';
-      return createSuccessResponse(`User Story #${updated.ref} "${updated.subject}" -> ${who}`);
+      const updateData = {
+        assigned_to: assignedUserIds.length > 0 ? assignedUserIds[0] : null,
+        assigned_users: assignedUserIds,
+      };
+      await taigaService.updateUserStory(userStory.id, updateData);
+      const fresh = await taigaService.getUserStory(userStory.id);
+      const who = await resolveAssignedNames(fresh);
+      return createSuccessResponse(`User Story #${fresh.ref} "${fresh.subject}" -> ${who}`);
     } catch (error) {
       return createErrorResponse(`Failed to assign user story: ${error.message}`);
     }
@@ -300,7 +325,7 @@ User Story Details:
 - Subject: ${updatedStory.subject}
 - Project: ${getSafeValue(updatedStory.project_extra_info?.name)}
 - New Status: ${getSafeValue(updatedStory.status_extra_info?.name)}
-- Assigned to: ${getSafeValue(updatedStory.assigned_to_extra_info?.full_name, 'Unassigned')}
+- Assigned to: ${updatedStory.assigned_users_extra_info?.length > 0 ? updatedStory.assigned_users_extra_info.map(u => u.full_name).join(', ') : 'Unassigned'}
 - Sprint: ${getSafeValue(updatedStory.milestone_extra_info?.name, 'No Sprint')}`;
 
       return createSuccessResponse(successMessage);
