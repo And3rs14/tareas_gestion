@@ -119,8 +119,9 @@ export class TaigaService {
     try {
       const client = await createAuthenticatedClient();
       if (projectId) {
+        const ref = String(userStoryId).replace(/^#/, '');
         const response = await client.get(`${API_ENDPOINTS.USER_STORIES}/by_ref`, {
-          params: { project: projectId, ref: userStoryId }
+          params: { project: projectId, ref }
         });
         return response.data;
       }
