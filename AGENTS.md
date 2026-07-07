@@ -5,6 +5,11 @@ Carpeta de trabajo para gestionar el Taiga self-hosted (`https://taiga.nuiti.org
 ## Qué hay aquí
 
 - `taigaMcpServer/` — fork local del MCP server. **No es el paquete npm**; es una copia editable con parches propios.
+- `.claude/rules/tareas.md` — **estándar de redacción de tareas** (el "norte"). Léelo antes de escribir cualquier user story en Taiga.
+
+## Cómo escribir tareas
+
+Todas las tareas/user stories se redactan siguiendo el estándar en [`.claude/rules/tareas.md`](./.claude/rules/tareas.md): inspeccionar primero el repo del producto, rellenar la plantilla completa con rutas reales, y devolver un bloque Markdown listo para pegar en Taiga.
 
 ## Setup para otro admin
 
