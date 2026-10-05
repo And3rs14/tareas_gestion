@@ -6,7 +6,7 @@ Carpeta de trabajo para **redactar y gestionar tareas** del Taiga self-hosted de
 
 @.claude/rules/tareas.md
 
-Siempre que redactes una tarea/user story, seguí ese estándar: inspeccioná primero el repo del producto correspondiente, rellená la plantilla completa con rutas reales, y devolvé un bloque Markdown listo para pegar en Taiga.
+Siempre que redactes una tarea/user story, seguí ese estándar: formato corto (Objetivo + Listo cuando, el cómo lo decide el programador), una por una con borrador y "dale" del líder antes de crear, y devolvé el link de Taiga.
 
 ## Guía del MCP (setup, parches, buenas prácticas)
 

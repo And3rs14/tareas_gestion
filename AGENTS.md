@@ -9,7 +9,7 @@ Carpeta de trabajo para gestionar el Taiga self-hosted (`https://taiga.nuiti.org
 
 ## Cómo escribir tareas
 
-Todas las tareas/user stories se redactan siguiendo el estándar en [`.claude/rules/tareas.md`](./.claude/rules/tareas.md): inspeccionar primero el repo del producto, rellenar la plantilla completa con rutas reales, y devolver un bloque Markdown listo para pegar en Taiga.
+Todas las tareas/user stories se redactan siguiendo el estándar en [`.claude/rules/tareas.md`](./.claude/rules/tareas.md): formato corto (Objetivo + Listo cuando; el cómo lo decide el programador), creadas una por una con el visto bueno del líder.
 
 ## Setup para otro admin
 
@@ -82,6 +82,8 @@ Háblale a Claude Code en lenguaje natural. Ejemplos:
 - Antes de editar descripciones masivamente, revisa con `getUserStory` que estás en la correcta.
 - `updateUserStoryStatus` usa IDs internos, no refs — obtenerlos con `listUserStories`.
 - El token de attachments caduca: embedir imágenes requiere el fragmento `#_taiga-refresh=userstory:{attachment_id}` — el tool `uploadAttachment` con `embedInDescription:true` lo maneja solo.
+- **Ref (#N) → id interno:** `uploadAttachment` (y otras tools) piden el `itemId` **interno**, no el ref `#N` (el ref da 400). Helper para resolverlo en un paso:
+  `node scripts/taiga-ref-to-id.mjs <slug> <ref> [userstory|issue|task]` → imprime el id interno (lee credenciales del entorno; ver el header del script).
 
 ## Limitaciones conocidas
 

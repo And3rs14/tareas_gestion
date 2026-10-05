@@ -9,63 +9,94 @@ En este estándar, **"tarea" = user story de Taiga** (que es como se trabaja en 
 
 ## Principio guía (el "norte")
 
-Una tarea está bien escrita cuando **un programador puede terminarla sin preguntar nada**, y se puede verificar que está hecha **leyendo solo los criterios de aceptación**.
+La tarea dice **qué** se quiere y **para qué**. El **cómo** lo decide el programador.
 
-## Plantilla
+Por qué: con tareas muy detalladas (rutas, funciones, pasos de prueba) algunos programadores
+ejecutan el detalle al pie de la letra sin criterio propio, y el líder no tiene tiempo de leer
+descripciones largas. Al quitar el cómo, el programador tiene que pensarlo y lo deja escrito
+en un plan corto que el líder revisa en un minuto.
 
-Se pega en la **descripción** de la user story en Taiga (acepta Markdown). Usar estos encabezados exactos y en este orden:
+Una tarea está bien escrita cuando se puede verificar que está hecha **leyendo solo "Listo cuando"**.
+
+## Plantilla (formato corto, el de siempre)
+
+Se pega en la **descripción** de la user story en Taiga (acepta Markdown):
 
 ```markdown
 ## Objetivo
-<Una o dos frases: qué queremos lograr y por qué. El "para qué", no el "cómo".>
+<Para qué sirve, en una frase.>
 
-## Alcance
-Incluye:
-- <qué SÍ entra en esta tarea>
-Fuera de alcance:
-- <qué NO entra — evita que la tarea crezca sin control>
+## Dónde
+- <URL de la pantalla afectada (stagging o prod)>   ← solo si aplica
 
-## Criterios de aceptación (Definition of Done)
-- [ ] <resultado verificable 1>
-- [ ] <resultado verificable 2>
-- [ ] <resultado verificable 3>
+## Listo cuando
+- [ ] <resultado verificable>
+- [ ] <resultado verificable>
 
-## Pistas técnicas
-- Archivos/módulos: `<ruta/al/archivo>`, función `<nombre>()`
-- Endpoints / tablas / configs relevantes: <...>
-- Enfoque sugerido (opcional): <si ya se sabe por dónde va, decirlo; si no, omitirlo>
+> El cómo lo decides tú. Antes de empezar, comenta en la tarea tu plan en 3-5 líneas.
 
-## Cómo probar
-1. <paso concreto para verificar el resultado>
-2. <comando, ruta o dato de prueba>
+## Dependencias / bloqueos      ← solo si hay
+- Bloqueada por #<n>: <motivo>
 
-## Dependencias / bloqueos
-- <ninguna | depende de la tarea #X | bloqueada por Y>
+## Referencia                   ← solo si hay imágenes
+<las imágenes se incrustan aquí con uploadAttachment embedInDescription:true>
 ```
 
-## Metadatos obligatorios en Taiga (fuera de la descripción)
+Secciones opcionales (usar solo cuando aportan):
+- **Dónde:** URLs de las pantallas. Es ubicación, no "cómo".
+- **Contexto:** 1-2 frases cuando el título se presta a malentendido (ej. "la lista de CONAREME no es la del sistema").
+- **Antes de empezar:** requisito previo del programador (ej. "comparte tu Gmail para acceso al canal de YouTube").
+- **Fuera de alcance:** una línea, solo si hay riesgo real de que la tarea crezca.
 
-- **Título:** verbo en imperativo ("Corregir…", "Añadir…", "Refactorizar…").
+**No poner:** pistas técnicas con rutas/funciones, "Cómo probar" paso a paso, alcance largo.
+Excepción: un requisito técnico que el líder pide explícitamente se pone como criterio
+(ej. "la tabla tiene índices", "el SVG se guarda en S3 y se sanea").
+
+## Flujo de trabajo con el líder (cómo crear tareas)
+
+1. El líder pasa su lista tal cual (títulos sueltos, a veces con link o captura).
+2. **Una por una, de arriba a abajo.** Nunca crear varias en lote sin que lo pida.
+3. Por cada tarea: mostrar el borrador en un bloque Markdown + **máximo 2-3 preguntas cortas**
+   sobre lo que no se puede deducir (dónde va, qué significa un término). No crear hasta tener
+   su "dale" o sus correcciones.
+4. Si el líder hace una pregunta de criterio ("¿lo ves necesario?", "¿llenaría la BD?"),
+   responder con opinión y recomendación concreta antes de redactar; no crear todavía.
+5. Al crear: si mandó capturas, subirlas con `uploadAttachment` (`embedInDescription:true`)
+   bajo `## Referencia`. El `itemId` es el id interno: `node scripts/taiga-ref-to-id.mjs <slug> <ref>`.
+6. Responder con el link `https://taiga.nuiti.org/project/<slug>/us/<ref>` y pasar al borrador
+   de la siguiente.
+7. Asignar solo si el líder lo dice; si no, queda sin asignar.
+
+## Metadatos en Taiga (fuera de la descripción)
+
+- **Título:** verbo en imperativo ("Corregir…", "Añadir…", "Habilitar…").
 - **Tags:** al menos una categoría (`bug`, `feature`, `mejora`, `deuda-técnica`, `docs`).
 - **Estado:** New → In progress → Ready for test → Done (sin saltos).
-- **Asignado:** siempre una persona.
-- **Prioridad:** Alta / Media / Baja (impacto + urgencia).
-- **Puntos:** estimación relativa (1, 2, 3, 5, 8). *Dejar a confirmación del equipo.*
+- **Asignado:** el que indique el líder (puede quedar sin asignar hasta decidir).
+- **Prioridad / puntos:** no se setean desde el MCP; a confirmación del equipo.
 
 ## Reglas de calidad
 
-1. Criterios de aceptación **verificables** o no valen.
-2. **Una tarea = un resultado** (si hay un "y" que une dos cosas, son dos tareas).
-3. El alcance protege al programador: **"Fuera de alcance" es tan importante como "Incluye"**.
-4. **Pistas técnicas con rutas reales, nunca inventadas.**
-5. Si falta información, se marca `<PENDIENTE: ...>`, **no se rellena adivinando**.
+1. "Listo cuando" **verificable** o no vale. 2-4 criterios; si salen más, la tarea es grande.
+2. **No dividir sin pedirlo:** un ítem de la lista = una user story, aunque tenga subítems
+   (van como criterios). Dividir solo si el líder lo pide.
+3. **No inventar:** lo que no se sabe y el líder no aclaró se marca `<PENDIENTE: ...>`.
+4. Nunca datos reales de pacientes en capturas ni ejemplos (Ley 29733).
 
-## Cómo debe redactar Claude una tarea
+## Formato extendido (excepción)
 
-1. **Inspecciona el repo del producto primero** y usa archivos/funciones/rutas reales en "Pistas técnicas".
-2. Rellena la plantilla completa, con esos encabezados exactos y en ese orden.
-3. Criterios de aceptación como checklist verificable (`- [ ]`).
-4. Declara siempre "Fuera de alcance".
-5. Ante datos que no puedas determinar, escribe `<PENDIENTE: ...>` en vez de adivinar.
-6. Devuelve la tarea en un **bloque de código Markdown** listo para pegar en Taiga.
-7. Sugiere aparte los metadatos (título, tags, prioridad, puntos), dejando la estimación de puntos a confirmación del equipo.
+Cuando el líder trae él mismo mucho detalle (ej. entregables de infraestructura con
+backup/rollback/logs, como la migración Galenos → WebGalén en HRL), se puede usar la
+plantilla larga: Objetivo, Alcance (Incluye / Fuera de alcance), Criterios de aceptación,
+Pistas técnicas, Cómo probar, Dependencias. Aun así, preferir lo más breve posible.
+
+## Tareas dependientes (cuando una depende de otra)
+
+El fork del MCP de Taiga **no linkea dependencias de forma nativa**, así que la relación
+se marca por convención:
+
+- **Título con marca de dependencia:** `… (requiere #<n>)`, donde `#<n>` es el número real de la US base.
+- **Sección "Dependencias / bloqueos"** en la descripción: `Bloqueada por #<n>: <motivo>`.
+- **Crear primero la base** para obtener su número, y recién entonces la dependiente.
+- Para una serie larga pedida explícitamente: tag compartido (ej. `soft-delete`) y títulos
+  `Serie (A) — …`, `Serie (B · requiere #<n>) — …`.
