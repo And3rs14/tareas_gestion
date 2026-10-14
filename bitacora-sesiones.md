@@ -17,3 +17,8 @@
 - Mover salt de NotiWeb hardcodeado a `.env` (deuda técnica mencionada en la wiki).
 - Asignar US #5–#10 y #11–#17 de medmind.
 - Ready for test acumulado en geresa dashboard (#24, #25, #26, #30) — nadie testea.
+
+## Sesión 2026-07-13
+
+**Pendiente a hablar (proceso de redacción de tareas):**
+- Evaluar cómo hacer más eficiente la inspección del repo al redactar tareas medmind. Idea: armar **una vez** un "mapa del proyecto" (módulos, servicios clave, convenciones, dónde vive cada cosa) guardado en `tareas_gestion`, para que la mayoría de tareas solo necesiten un spot-check en vez de un escaneo desde cero. Complemento: **calibrar la profundidad** (escaneo profundo solo para lo arquitectónico/transversal; liviano para lo simple). Retomar cuando haya tiempo.
