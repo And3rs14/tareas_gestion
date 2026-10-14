@@ -713,7 +713,8 @@ export class TaigaService {
     const endpoints = {
       'issue': API_ENDPOINTS.ISSUES,
       'user_story': API_ENDPOINTS.USER_STORIES,
-      'task': API_ENDPOINTS.TASKS
+      'task': API_ENDPOINTS.TASKS,
+      'wiki_page': API_ENDPOINTS.WIKI
     };
     return endpoints[itemType] || API_ENDPOINTS.ISSUES;
   }
@@ -1065,7 +1066,8 @@ export class TaigaService {
     const endpoints = {
       'issue': API_ENDPOINTS.ISSUE_ATTACHMENTS,
       'user_story': API_ENDPOINTS.USERSTORY_ATTACHMENTS,
-      'task': API_ENDPOINTS.TASK_ATTACHMENTS
+      'task': API_ENDPOINTS.TASK_ATTACHMENTS,
+      'wiki_page': API_ENDPOINTS.WIKI_ATTACHMENTS
     };
     return endpoints[itemType] || API_ENDPOINTS.ISSUE_ATTACHMENTS;
   }

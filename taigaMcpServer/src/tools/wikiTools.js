@@ -11,9 +11,31 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES, RESPONSE_TEMPLATES } from '../constan
 
 const taigaService = new TaigaService();
 
-async function createWikiLink(projectId, title, href) {
+/**
+ * Crea un link en el sidebar del wiki.
+ *
+ * ⚠️ Taiga IGNORA el `href` que se manda: lo deriva slugificando el `title`, y no
+ * lo deja cambiar después (PATCH sobre href no tiene efecto). Si el slug del título
+ * no coincide con el de la página, el link del sidebar abre una página vacía.
+ * Por eso acá se verifica y, si no coincide, se borra el link roto y se avisa.
+ */
+async function createWikiLink(projectId, title, expectedHref) {
   const client = await createAuthenticatedClient();
-  await client.post('/wiki-links', { project: projectId, title, href });
+  const { data: link } = await client.post('/wiki-links', { project: projectId, title, href: expectedHref });
+
+  if (link.href !== expectedHref) {
+    try {
+      await client.delete(`/wiki-links/${link.id}`);
+    } catch (_) {
+      // si no se pudo borrar, igual reportamos el problema abajo
+    }
+    throw new Error(
+      `Taiga generó el link como "${link.href}" (slug del título) pero la página es "${expectedHref}", ` +
+      `así que el sidebar abriría una página vacía. Link descartado. ` +
+      `Usá un sidebarTitle cuyo slug coincida con el slug de la página.`
+    );
+  }
+  return link;
 }
 
 /**

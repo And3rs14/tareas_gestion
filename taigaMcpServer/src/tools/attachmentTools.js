@@ -1,6 +1,6 @@
 /**
  * Attachment management tools for Taiga MCP Server
- * Handles file uploads, downloads, listing, and deletion for Issues, User Stories, and Tasks
+ * Handles file uploads, downloads, listing, and deletion for Issues, User Stories, Tasks, and Wiki pages
  */
 
 import { z } from 'zod';
@@ -39,11 +39,11 @@ const taigaService = new TaigaService();
  */
 export const uploadAttachmentTool = {
   name: 'uploadAttachment',
-  description: 'Upload a file attachment to an Issue, User Story, or Task. Provide either filePath (recommended) or fileData+fileName.',
+  description: 'Upload a file attachment to an Issue, User Story, Task, or Wiki page. Provide either filePath (recommended) or fileData+fileName.',
   schema: {
-    itemType: z.enum(['issue', 'user_story', 'task']).describe('Type of item to attach file to'),
-    itemId: z.union([z.number(), z.string()]).transform(val => typeof val === 'string' ? parseInt(val) : val).describe('ID of the item to attach file to'),
-    projectIdentifier: z.string().optional().describe('Project ID or slug (required for issues)'),
+    itemType: z.enum(['issue', 'user_story', 'task', 'wiki_page']).describe('Type of item to attach file to'),
+    itemId: z.union([z.number(), z.string()]).transform(val => (typeof val === 'string' && /^\d+$/.test(val)) ? parseInt(val) : val).describe('ID of the item to attach file to (for wiki_page also accepts the page slug, with projectIdentifier)'),
+    projectIdentifier: z.string().optional().describe('Project ID or slug (required for issues, and for wiki pages referenced by slug)'),
     // 主要方式：文件路徑 (Claude Client 支援)
     filePath: z.string().optional().describe('File path - supports absolute paths, relative paths, or just filename (will search common locations)'),
     // 進階方式：直接 Base64 數據 (程式化使用)
@@ -85,6 +85,16 @@ export const uploadAttachmentTool = {
             throw new Error(`Issue #${itemId} not found in project ${projectIdentifier}`);
           }
         }
+      }
+
+      // Wiki pages: permitir referenciar por slug (necesita projectIdentifier)
+      if (itemType === 'wiki_page' && typeof actualItemId === 'string') {
+        if (!projectIdentifier) {
+          return createErrorResponse('Project identifier is required when referencing a wiki page by slug. Provide projectIdentifier or use the numeric wiki page ID.');
+        }
+        const projectId = await resolveProjectId(projectIdentifier);
+        const wikiPage = await taigaService.getWikiPageBySlug(actualItemId, projectId);
+        actualItemId = wikiPage.id;
       }
 
       // 智能檢測使用哪種上傳模式
@@ -132,9 +142,9 @@ export const uploadAttachmentTool = {
  */
 export const listAttachmentsTool = {
   name: 'listAttachments',
-  description: 'List all attachments for an Issue, User Story, or Task',
+  description: 'List all attachments for an Issue, User Story, Task, or Wiki page',
   schema: {
-    itemType: z.enum(['issue', 'user_story', 'task']).describe('Type of item to list attachments for'),
+    itemType: z.enum(['issue', 'user_story', 'task', 'wiki_page']).describe('Type of item to list attachments for'),
     itemId: z.number().describe('ID of the item to list attachments for')
   },
   

@@ -55,13 +55,14 @@ TAIGA_PASSWORD = "tu_password"
 |---|---|
 | `listUserStories` | Muestra `id` interno, asignado y sprint (antes solo ref + status) |
 | `getUserStory` | Acepta ref `#N` + `projectIdentifier` (antes solo ID interno — fallaba siempre) |
-| `createWikiPage` | Arreglado bug (`resolvedProject.id` era `undefined`). Nuevo param `sidebarTitle` para agregar al sidebar en un paso |
+| `createWikiPage` | Arreglado bug (`resolvedProject.id` era `undefined`). Nuevo param `sidebarTitle` para agregar al sidebar en un paso. Valida que el link del sidebar apunte a la página real: Taiga ignora el `href` y lo deriva del **título**, así que si el slug del título no coincide con el de la página el link se descarta y se avisa (antes quedaba un link a una página vacía) |
 | `updateUserStory` | **Nuevo** — edita `subject`, `description`, `tags` |
 | `updateUserStoryStatus` | **Nuevo** — cambia el estado de una user story |
 | `assignUserStory` | **Nuevo** — asignar por nombre/email/id |
 | `listProjectMembers` | **Nuevo** — lista miembros con `user_id` y email |
 | `uploadAttachment` | Nuevos params `embedInDescription` + `embedPosition` para incrustar imagen con fragmento `#_taiga-refresh` |
 | `listAttachments` | Ahora devuelve URL del adjunto |
+| `uploadAttachment` + `listAttachments` | Aceptan `itemType: "wiki_page"` (adjuntos en páginas wiki). `itemId` admite el id numérico o el **slug** de la página (con `projectIdentifier`) |
 | `moveUserStory` | **Nuevo** — reordena en kanban. Usa `POST /userstories/bulk_update_kanban_order` |
 | Otros tools de wiki | Bug `resolvedProject.id undefined` arreglado globalmente |
 
