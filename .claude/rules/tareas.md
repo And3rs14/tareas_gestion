@@ -100,3 +100,15 @@ se marca por convención:
 - **Crear primero la base** para obtener su número, y recién entonces la dependiente.
 - Para una serie larga pedida explícitamente: tag compartido (ej. `soft-delete`) y títulos
   `Serie (A) — …`, `Serie (B · requiere #<n>) — …`.
+
+### Backend + front (contrato primero)
+
+Cuando el líder parte una funcionalidad en backend y front (ej. Retos #163/#164), las dos
+avanzan en paralelo sin bloquearse:
+
+- **Backend:** el primer criterio de "Listo cuando" es
+  `- [ ] El contrato de la API (endpoints, request y response) está acordado con <front> y comentado en ambas tareas.`
+- **Front:** arranca con datos simulados que respetan ese contrato y conecta la API real
+  cuando el backend la entrega. Criterio típico:
+  `- [ ] La pantalla funciona con la API real (ya no usa datos simulados).`
+- El front lleva `(requiere #<backend>)` solo para la conexión final, no para empezar.

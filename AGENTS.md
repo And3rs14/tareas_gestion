@@ -85,6 +85,54 @@ Háblale a Claude Code en lenguaje natural. Ejemplos:
 - El token de attachments caduca: embedir imágenes requiere el fragmento `#_taiga-refresh=userstory:{attachment_id}` — el tool `uploadAttachment` con `embedInDescription:true` lo maneja solo.
 - **Ref (#N) → id interno:** `uploadAttachment` (y otras tools) piden el `itemId` **interno**, no el ref `#N` (el ref da 400). Helper para resolverlo en un paso:
   `node scripts/taiga-ref-to-id.mjs <slug> <ref> [userstory|issue|task]` → imprime el id interno (lee credenciales del entorno; ver el header del script).
+- **Para editar una tarea que ya tiene imágenes, no reemplazar la descripción entera** (ver trampas abajo): usar `scripts/taiga-us-replace.mjs`.
+
+## Scripts de apoyo (`scripts/`)
+
+Cubren lo que el MCP no hace o hace mal. Todos leen `TAIGA_API_URL`, `TAIGA_USERNAME` y
+`TAIGA_PASSWORD` del entorno (las mismas del MCP; nunca hardcodearlas, este repo es público)
+y comparten el cliente `scripts/lib/taiga.mjs`. Cada script explica su uso en el header.
+
+| Script | Qué hace |
+|---|---|
+| `taiga-ref-to-id.mjs <slug> <ref>` | Ref `#N` → id interno (para `uploadAttachment`, `updateUserStoryStatus`, `addComment`) |
+| `taiga-us-replace.mjs <slug> <ref> '[["viejo","nuevo"]]'` | Edita fragmentos de título/descripción sin perder las imágenes incrustadas |
+| `taiga-reembed.mjs <slug> <ref>` | Vuelve a incrustar imágenes adjuntas que se perdieron de la descripción |
+| `taiga-status.mjs <slug> <desde> [hasta]` | Estado, fecha límite, asignados y último comentario del equipo (¿comentaron su plan?) |
+| `taiga-set-due.mjs <slug> '{"<ref>":"YYYY-MM-DD"}'` | Pone fechas límite en lote |
+| `taiga-us-by-person.mjs <slug>` | Tareas del proyecto agrupadas por persona |
+| `taiga-by-user.mjs <userId>` | Tareas de una persona en todos los proyectos |
+| `taiga-find-user.mjs <texto>` | Busca usuarios por nombre, username o email → `user_id` |
+| `taiga-members.mjs <slug> [userId "Rol"]` | Lista roles y miembros, o agrega un miembro (solo con visto bueno del líder) |
+
+## Trampas conocidas (aprendidas en uso)
+
+- **`updateUserStory` con `description` borra las imágenes incrustadas.** Reemplaza el texto
+  completo y se pierden los links `#_taiga-refresh`. Editar con `taiga-us-replace.mjs`; si ya
+  pasó, reparar con `taiga-reembed.mjs`.
+- **Paginación de 30.** La API devuelve 30 resultados si no se manda `x-disable-pagination: True`.
+  `listProjectMembers` y `assignUserStory` (que busca por nombre entre los miembros) fallan o
+  no encuentran a la persona en proyectos con más de 30 miembros. Workaround: buscar el
+  `user_id` con `taiga-find-user.mjs` y asignar por id.
+- **Para asignar, la persona debe ser miembro del proyecto.** Si `assignUserStory` falla,
+  revisar con `taiga-members.mjs <slug>`.
+- **`updateUserStoryStatus` / `addComment` piden el id interno.** Nunca pasar el número de la
+  tarea sin `#` como si fuera id: apunta a otra user story.
+- **`addComment` responde "無內容" (sin contenido)** aunque el comentario sí se guarda. Es un bug
+  cosmético del formateo; verificar en Taiga si hace falta.
+- Los estados de Medmind se escriben `In progress` (p minúscula), `Ready for test`, `Done`.
+
+## Git flow de los repos de Medmind
+
+Útil para nombrar la rama base correcta al redactar tareas.
+
+- Repos: `medmind.backend` y `medstudio-app`. Ramas: `main` (producción), `soporte` (espejo de
+  producción, correcciones) y `developer` (integración del desarrollo).
+- Los devs sacan rama de `developer` (o de `soporte` si es soporte) y hacen PR a la misma rama
+  de la que salieron; ellos resuelven los conflictos. Nadie pushea a `main` ni usa `--force`.
+- Solo Anderson hace PRs a `main` y actualiza `developer` con `soporte`.
+- Nombres de rama: `feat/us<N>-descripcion-kebab`, `fix/us<N>-...`.
+- Detalle en la wiki: https://taiga.nuiti.org/project/medmind/wiki/manejo-de-ramas
 
 ## Limitaciones conocidas
 
