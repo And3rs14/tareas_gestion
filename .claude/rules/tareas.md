@@ -24,7 +24,8 @@ Se pega en la **descripción** de la user story en Taiga (acepta Markdown):
 
 ```markdown
 ## Objetivo
-<Para qué sirve, en una frase.>
+Como <rol> quiero <hacer algo> para <beneficio>.   ← si hay un usuario real
+<o, si es una tarea técnica, para qué sirve en una frase>
 
 ## Dónde
 - <URL de la pantalla afectada (stagging o prod)>   ← solo si aplica
@@ -41,6 +42,13 @@ Se pega en la **descripción** de la user story en Taiga (acepta Markdown):
 ## Referencia                   ← solo si hay imágenes
 <las imágenes se incrustan aquí con uploadAttachment embedInDescription:true>
 ```
+
+**La frase "Como… quiero… para…"** va solo cuando hay un usuario real (estudiante, mentor,
+admin de contenido, admin de usuarios, superadmin…). Nombrar el rol obliga a pensar desde
+su pantalla y evita confusiones de quién puede qué. En tareas técnicas (despliegues,
+scripts, auditorías, propuestas) no se usa: "Como desarrollador quiero…" es relleno.
+- Con usuario: "Como estudiante quiero silenciar los sonidos para estudiar sin distracciones."
+- Técnica: "Tener un ambiente propio por rama para revisar cambios sin montarlos en local."
 
 Secciones opcionales (usar solo cuando aportan):
 - **Dónde:** URLs de las pantallas. Es ubicación, no "cómo".
