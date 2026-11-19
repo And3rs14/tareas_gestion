@@ -1,6 +1,8 @@
 // Cliente mínimo de la API de Taiga para los scripts de esta carpeta.
 //
-// Credenciales: se leen del ENTORNO (nunca hardcodeadas — este repo se sube a GitHub).
+// Credenciales: se leen del ENTORNO o del archivo `.env` de la raíz del repo (está en
+// .gitignore; nunca hardcodeadas — este repo se sube a GitHub). Si una variable está en
+// ambos, gana la del entorno.
 //   TAIGA_API_URL   (default: https://taiga.nuiti.org/api/v1)
 //   TAIGA_USERNAME
 //   TAIGA_PASSWORD
@@ -8,12 +10,18 @@
 // Siempre manda `x-disable-pagination: True`: sin ese header la API corta en 30 resultados
 // y los listados (miembros, user stories) salen incompletos sin avisar.
 
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const ENV_FILE = fileURLToPath(new URL('../../.env', import.meta.url));
+if (existsSync(ENV_FILE)) process.loadEnvFile(ENV_FILE);
+
 const BASE = process.env.TAIGA_API_URL || 'https://taiga.nuiti.org/api/v1';
 
 export async function taiga() {
   const { TAIGA_USERNAME: username, TAIGA_PASSWORD: password } = process.env;
   if (!username || !password) {
-    console.error('Faltan TAIGA_USERNAME / TAIGA_PASSWORD en el entorno.');
+    console.error('Faltan TAIGA_USERNAME / TAIGA_PASSWORD (en el entorno o en el .env de la raíz del repo).');
     process.exit(1);
   }
   const auth = await fetch(`${BASE}/auth`, {

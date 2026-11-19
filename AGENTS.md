@@ -90,8 +90,8 @@ Háblale a Claude Code en lenguaje natural. Ejemplos:
 ## Scripts de apoyo (`scripts/`)
 
 Cubren lo que el MCP no hace o hace mal. Todos leen `TAIGA_API_URL`, `TAIGA_USERNAME` y
-`TAIGA_PASSWORD` del entorno (las mismas del MCP; nunca hardcodearlas, este repo es público)
-y comparten el cliente `scripts/lib/taiga.mjs`. Cada script explica su uso en el header.
+`TAIGA_PASSWORD` del entorno o de un archivo `.env` en la raíz del repo (las mismas del MCP;
+nunca hardcodearlas, este repo es público y el `.env` está en `.gitignore`) y comparten el cliente `scripts/lib/taiga.mjs`. Cada script explica su uso en el header.
 
 | Script | Qué hace |
 |---|---|

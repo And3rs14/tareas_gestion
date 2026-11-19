@@ -12,15 +12,22 @@
 //
 //   tipo: userstory (default) | issue | task
 //
-// Credenciales: se leen del ENTORNO (nunca hardcodeadas — este repo se sube a GitHub).
+// Credenciales: se leen del ENTORNO o del `.env` de la raíz del repo (nunca hardcodeadas —
+// este repo se sube a GitHub).
 //   TAIGA_API_URL   (default: https://taiga.nuiti.org/api/v1)
 //   TAIGA_USERNAME
 //   TAIGA_PASSWORD
-// Son las mismas que ya usa el MCP; si no están en tu shell, exportalas antes de correr:
+// Son las mismas que ya usa el MCP; si no están en tu shell ni en el `.env`, exportalas:
 //   PowerShell:  $env:TAIGA_USERNAME='...'; $env:TAIGA_PASSWORD='...'
 //   Bash:        export TAIGA_USERNAME=...  TAIGA_PASSWORD=...
 //
 // Salida: imprime solo el id interno (ideal para capturarlo en una variable).
+
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const ENV_FILE = fileURLToPath(new URL('../.env', import.meta.url));
+if (existsSync(ENV_FILE)) process.loadEnvFile(ENV_FILE);
 
 const BASE = process.env.TAIGA_API_URL || 'https://taiga.nuiti.org/api/v1';
 const USER = process.env.TAIGA_USERNAME;
@@ -37,7 +44,7 @@ if (!slug || !rawRef) {
   die('Uso: node scripts/taiga-ref-to-id.mjs <slug-proyecto> <ref> [userstory|issue|task]');
 }
 if (!USER || !PASS) {
-  die('Faltan TAIGA_USERNAME / TAIGA_PASSWORD en el entorno (mismas credenciales del MCP).');
+  die('Faltan TAIGA_USERNAME / TAIGA_PASSWORD en el entorno o en el .env (mismas credenciales del MCP).');
 }
 
 const ref = String(rawRef).replace(/^#/, '');
