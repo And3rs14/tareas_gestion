@@ -120,3 +120,38 @@ avanzan en paralelo sin bloquearse:
   cuando el backend la entrega. Criterio típico:
   `- [ ] La pantalla funciona con la API real (ya no usa datos simulados).`
 - El front lleva `(requiere #<backend>)` solo para la conexión final, no para empezar.
+
+### Trabajo en cooperativo (series entre varias personas)
+
+La regla completa para los programadores está en la wiki:
+https://taiga.nuiti.org/project/medmind/wiki/trabajo-en-cooperativo. Al redactar una serie:
+
+- **Rama de la serie** `feat/<tema>` (dueño: quien hace la A) en "Dónde" de **todas** las
+  tareas, con el link a la wiki. Las ramas personales son `feat/<tema>-<parte>` y hacen PR a
+  la de la serie.
+- **Fecha límite** en cada tarea (`taiga-set-due.mjs`): la base vence antes que las que
+  dependen de ella; el contrato, en los primeros 2 días hábiles.
+- **Revisión cruzada en "Listo cuando":** el front revisa el backend en el ambiente de revisión
+  y le comenta requerimientos; ningún PR entra a la rama de la serie sin la aprobación de otro
+  integrante.
+- **Cierre:** el último criterio de la última tarea es "La serie funciona junta en
+  `rev-<tema>`". El líder revisa ahí y luego el dueño hace el PR a `developer`.
+
+Ejemplo (backend + front):
+
+```markdown
+## Dónde
+- Rama de la serie: `feat/ventas` (dueño: <persona de la A>). Trabajo en cooperativo: <link wiki>
+
+## Listo cuando                                   ← backend (A)
+- [ ] El contrato de la API está comentado en todas las tareas de la serie (vence <fecha>).
+- [ ] <criterios de la funcionalidad>
+- [ ] El front probó los endpoints en `rev-ventas` y sus requerimientos están resueltos.
+- [ ] El PR a `feat/ventas` está aprobado por el front.
+
+## Listo cuando                                   ← front (B)
+- [ ] Revisé el backend en `rev-ventas` y comenté mis requerimientos en #<A>.
+- [ ] <criterios de la pantalla>
+- [ ] La pantalla funciona con la API real y el PR está aprobado por el backend.
+- [ ] La serie funciona junta en `rev-ventas`.
+```

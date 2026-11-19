@@ -131,7 +131,11 @@ y comparten el cliente `scripts/lib/taiga.mjs`. Cada script explica su uso en el
 - Los devs sacan rama de `developer` (o de `soporte` si es soporte) y hacen PR a la misma rama
   de la que salieron; ellos resuelven los conflictos. Nadie pushea a `main` ni usa `--force`.
 - Solo Anderson hace PRs a `main` y actualiza `developer` con `soporte`.
-- Nombres de rama: `feat/us<N>-descripcion-kebab`, `fix/us<N>-...`.
+- Nombres de rama: `feat/<tema>` o `fix/<tema>` (2-4 palabras en kebab-case, ej.
+  `feat/retos-v2`); el título del PR empieza con `#<N>` de la tarea. Ambiente de revisión: `rev-<tema>`.
+- Series entre varias personas: rama de la serie `feat/<tema>` (dueño: quien hace la A), ramas
+  personales `feat/<tema>-<parte>` con PR a la de la serie, revisión cruzada y cierre en `rev-<tema>`.
+  Wiki: https://taiga.nuiti.org/project/medmind/wiki/trabajo-en-cooperativo
 - Detalle en la wiki: https://taiga.nuiti.org/project/medmind/wiki/manejo-de-ramas
 
 ## Limitaciones conocidas
